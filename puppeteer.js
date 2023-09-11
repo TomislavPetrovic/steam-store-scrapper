@@ -6,7 +6,7 @@ async function scrapeGameLinks() {
     const page = await browser.newPage();
     //const startingPageURL = 'https://store.steampowered.com/';
     const startingPageURL =
-        "https://store.steampowered.com/search/?maxprice=free&tags=19%2C1721%2C3877&supportedlang=english&ndl=1";
+        "https://store.steampowered.com/search/?maxprice=free&tags=19%2C1721%2C3877%2C597&supportedlang=english&ndl=1";
 
     await page.goto(startingPageURL);
 
