@@ -5,7 +5,7 @@ async function scrapeGameLinks() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     const startingPageURL =
-        "https://store.steampowered.com/search/?maxprice=free&tags=19%2C1721%2C3877%2C597&supportedlang=english&ndl=1";
+        "https://store.steampowered.com/search/?sort_by=Reviews_DESC&maxprice=free&untags=19&category1=998&category3=2&category2=28&os=win&supportedlang=english&ndl=1";
 
     await page.goto(startingPageURL);
     await page.waitForSelector("#search_resultsRows > a");
