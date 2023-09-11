@@ -1,14 +1,36 @@
 const puppeteer = require("puppeteer");
 
+// Function to scroll down and load more game links on the Steam web store
+async function scrollDownToLoadLinks(page) {
+    const scrollInterval = 1000; // Adjust the interval as needed
+    let previousHeight = await page.evaluate("document.body.scrollHeight");
+
+    while (true) {
+        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
+        await page.waitForTimeout(scrollInterval);
+
+        const newHeight = await page.evaluate("document.body.scrollHeight");
+        if (newHeight === previousHeight) {
+            break; // No more content is loading
+        }
+        previousHeight = newHeight;
+    }
+}
+
 // Function to scrape game links from the Steam web store
 async function scrapeGameLinks() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     const startingPageURL =
-        "https://store.steampowered.com/search/?sort_by=Reviews_DESC&maxprice=free&untags=19&category1=998&category3=2&category2=28&os=win&supportedlang=english&ndl=1";
+        "https://store.steampowered.com/search/?sort_by=Reviews_DESC&maxprice=free&tags=597%2C113%2C19&category1=998&category3=2&category2=28&os=win&supportedlang=english&ndl=1";
 
     await page.goto(startingPageURL);
     await page.waitForSelector("#search_resultsRows > a");
+
+    
+    // Scroll down to load more links
+    await scrollDownToLoadLinks(page);
+
     const gameLinks = await page.evaluate(() => {
         const links = Array.from(document.querySelectorAll("#search_resultsRows > a"));
         return links.map((link) => link.href);
@@ -48,13 +70,25 @@ async function scrapeStorageRequirements(links) {
                 // Display the data as it arrives
                 console.log("Game Link:", gameInfo.link);
                 console.log("Storage Requirements:", gameInfo.storage);
-                console.log("\n");
             } else {
                 console.warn("Storage requirements not found for", link);
+                //also log as not found(put 0 mb size, visible on list later)
+                const gameInfo = {
+                    link,
+                    storage: "0 mb",
+                };
+                storageInfo.push(gameInfo);
             }
         } catch (error) {
             console.error("Error:", error);
+            //also log as not found(put 0 mb size, visible on list later)
+            const gameInfo = {
+                link,
+                storage: "0 mb",
+            };
+            storageInfo.push(gameInfo);
         } finally {
+            console.log("\n");
             await page.close();
         }
     }
